@@ -57,6 +57,11 @@ func NewImgpkgCmd(o *ImgpkgOptions) *cobra.Command {
 	tagCmd.AddCommand(NewTagResolveCmd(NewTagResolveOptions(o.ui)))
 	cmd.AddCommand(tagCmd)
 
+	//Check for empty imgpkg command, and populate it with help command.
+	if cmd.RunE == nil {
+		cmd.RunE = cobrautil.ShowHelp
+	}
+
 	// Last one runs first
 	cobrautil.VisitCommands(cmd, cobrautil.ReconfigureCmdWithSubcmd)
 	cobrautil.VisitCommands(cmd, cobrautil.DisallowExtraArgs)
