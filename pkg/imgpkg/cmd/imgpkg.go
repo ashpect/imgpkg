@@ -35,6 +35,7 @@ func NewImgpkgCmd(o *ImgpkgOptions) *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		Version:           Version,
+		RunE:              cobrautil.ShowHelp,
 	}
 
 	// TODO bash completion
@@ -56,11 +57,6 @@ func NewImgpkgCmd(o *ImgpkgOptions) *cobra.Command {
 	tagCmd.AddCommand(NewTagListCmd(NewTagListOptions(o.ui)))
 	tagCmd.AddCommand(NewTagResolveCmd(NewTagResolveOptions(o.ui)))
 	cmd.AddCommand(tagCmd)
-
-	//Check for empty imgpkg command, and populate it with help command.
-	if cmd.RunE == nil {
-		cmd.RunE = cobrautil.ShowHelp
-	}
 
 	// Last one runs first
 	cobrautil.VisitCommands(cmd, cobrautil.ReconfigureCmdWithSubcmd)
