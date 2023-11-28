@@ -5,9 +5,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	regname "github.com/google/go-containerregistry/pkg/name"
 	ctlbundle "github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/bundle"
+	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/image"
 	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/imageset"
 	ctlimgset "github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/imageset"
 	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/imagetar"
@@ -61,6 +63,7 @@ func (c CopyRepoSrc) CopyToTar(dstPath string, resume bool) error {
 func (c CopyRepoSrc) CopyToRepo(repo string) (*ctlimgset.ProcessedImages, error) {
 	c.logger.Tracef("CopyToRepo(%s)\n", repo)
 
+	var tempDir string
 	var processedImages *ctlimgset.ProcessedImages
 	importRepo, err := regname.NewRepository(repo)
 	if err != nil {
@@ -73,7 +76,12 @@ func (c CopyRepoSrc) CopyToRepo(repo string) (*ctlimgset.ProcessedImages, error)
 		}
 
 		if c.OciFlags.IsOci() {
-			processedImages, err = c.tarImageSet.Import(c.OciFlags.OcitoReg, importRepo, c.registry, true)
+			tempDir, err = image.ExtractOciTarGz(c.OciFlags.OcitoReg)
+			if err != nil {
+				return nil, err
+			}
+			processedImages, err = c.tarImageSet.Import(tempDir, importRepo, c.registry, true)
+
 		} else {
 			processedImages, err = c.tarImageSet.Import(c.TarFlags.TarSrc, importRepo, c.registry, false)
 		}
@@ -137,6 +145,11 @@ func (c CopyRepoSrc) CopyToRepo(repo string) (*ctlimgset.ProcessedImages, error)
 	err = c.tagAllImages(processedImages)
 	if err != nil {
 		return nil, fmt.Errorf("Tagging images: %s", err)
+	}
+
+	err = os.RemoveAll(tempDir)
+	if err != nil {
+		fmt.Println("Error cleaning up temporary directory:", err)
 	}
 
 	return processedImages, nil
