@@ -7,20 +7,21 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
 	"regexp"
 	"sync"
 	"time"
 
+	"carvel.dev/imgpkg/pkg/imgpkg/internal/util"
+	"carvel.dev/imgpkg/pkg/imgpkg/registry/auth"
 	regauthn "github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/logs"
 	regname "github.com/google/go-containerregistry/pkg/name"
 	regv1 "github.com/google/go-containerregistry/pkg/v1"
 	regremote "github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/remote/transport"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/internal/util"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/registry/auth"
 )
 
 type Opts struct {
@@ -42,6 +43,8 @@ type Opts struct {
 
 	EnvironFunc     func() []string
 	ActiveKeychains []auth.IAASKeychain
+
+	SessionID string
 }
 
 // DeepCopy the options to a new struct
@@ -193,6 +196,12 @@ func NewSimpleRegistryWithTransport(opts Opts, rTripper http.RoundTripper) (*Sim
 	if logs.Enabled(logs.Debug) {
 		baseRoundTripper = transport.NewLogger(rTripper)
 	}
+
+	sessionID := opts.SessionID
+	if sessionID == "" {
+		sessionID = fmt.Sprint(rand.Intn(9999999999))
+	}
+	baseRoundTripper = NewImgpkgRoundTripper(baseRoundTripper, sessionID)
 
 	// Wrap the transport in something that can retry network flakes.
 	baseRoundTripper = transport.NewRetry(baseRoundTripper, transport.WithRetryBackoff(retryBackoff))

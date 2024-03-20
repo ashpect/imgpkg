@@ -4,9 +4,9 @@ package signaturefakes
 import (
 	"sync"
 
+	"carvel.dev/imgpkg/pkg/imgpkg/imageset"
+	"carvel.dev/imgpkg/pkg/imgpkg/signature"
 	"github.com/google/go-containerregistry/pkg/name"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/imageset"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/signature"
 )
 
 type FakeFinder struct {

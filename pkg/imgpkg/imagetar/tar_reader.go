@@ -9,6 +9,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"carvel.dev/imgpkg/pkg/imgpkg/imagedesc"
+	"carvel.dev/imgpkg/pkg/imgpkg/imageutils/verify"
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/layout"

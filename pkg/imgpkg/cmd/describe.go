@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"sort"
 
+	"carvel.dev/imgpkg/pkg/imgpkg/bundle"
+	"carvel.dev/imgpkg/pkg/imgpkg/internal/util"
+	v1 "carvel.dev/imgpkg/pkg/imgpkg/v1"
 	goui "github.com/cppforlife/go-cli-ui/ui"
 	regname "github.com/google/go-containerregistry/pkg/name"
 	"github.com/spf13/cobra"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/bundle"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/internal/util"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/v1"
 	"sigs.k8s.io/yaml"
 )
 
@@ -30,6 +30,7 @@ type DescribeOptions struct {
 
 	Concurrency            int
 	OutputType             string
+	Layers                 bool
 	IncludeCosignArtifacts bool
 }
 
@@ -53,6 +54,7 @@ func NewDescribeCmd(o *DescribeOptions) *cobra.Command {
 	o.RegistryFlags.Set(cmd)
 	cmd.Flags().IntVar(&o.Concurrency, "concurrency", 5, "Concurrency")
 	cmd.Flags().StringVarP(&o.OutputType, "output-type", "o", "text", "Type of output possible values: [text, yaml]")
+	cmd.Flags().BoolVarP(&o.Layers, "layers", "", true, "Retrieve image layers info (Default: false)")
 	cmd.Flags().BoolVar(&o.IncludeCosignArtifacts, "cosign-artifacts", true, "Retrieve cosign artifact information (Default: true)")
 	return cmd
 }
@@ -72,17 +74,19 @@ func (d *DescribeOptions) Run() error {
 			Logger:                 levelLogger,
 			Concurrency:            d.Concurrency,
 			IncludeCosignArtifacts: d.IncludeCosignArtifacts,
+			Layers:                 d.Layers,
 		},
 		d.RegistryFlags.AsRegistryOpts())
 	if err != nil {
 		return err
 	}
 
+	ttyEnabledLogger := util.NewUILevelLogger(logLevel, util.NewLoggerNoTTY(d.ui))
 	if d.OutputType == "text" {
-		p := bundleTextPrinter{logger: levelLogger}
+		p := bundleTextPrinter{logger: ttyEnabledLogger}
 		p.Print(description)
 	} else if d.OutputType == "yaml" {
-		p := bundleYAMLPrinter{logger: util.NewUILevelLogger(logLevel, util.NewLoggerNoTTY(d.ui))}
+		p := bundleYAMLPrinter{logger: ttyEnabledLogger}
 		return p.Print(description)
 	}
 	return nil
@@ -137,6 +141,12 @@ func (p bundleTextPrinter) printerRec(description v1.Description, originalLogger
 		indentLogger.Logf("- Image: %s\n", b.Image)
 		indentLogger.Logf("  Type: Bundle\n")
 		indentLogger.Logf("  Origin: %s\n", b.Origin)
+		if len(b.Layers) > 0 {
+			indentLogger.Logf("  Layers:\n")
+			for _, d := range b.Layers {
+				indentLogger.Logf("    - Digest: %s\n", d.Digest)
+			}
+		}
 		annotations := b.Annotations
 
 		p.printAnnotations(annotations, util.NewIndentedLogger(indentLogger))
@@ -158,6 +168,12 @@ func (p bundleTextPrinter) printerRec(description v1.Description, originalLogger
 		indentLogger.Logf("  Type: %s\n", image.ImageType)
 		if image.ImageType == bundle.ContentImage {
 			indentLogger.Logf("  Origin: %s\n", image.Origin)
+		}
+		if len(image.Layers) > 0 {
+			indentLogger.Logf("  Layers:\n")
+			for _, d := range image.Layers {
+				indentLogger.Logf("    - Digest: %s\n", d.Digest)
+			}
 		}
 		annotations := image.Annotations
 		p.printAnnotations(annotations, util.NewIndentedLogger(indentLogger))

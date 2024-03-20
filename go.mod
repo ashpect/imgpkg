@@ -1,22 +1,22 @@
-module github.com/vmware-tanzu/carvel-imgpkg
+module carvel.dev/imgpkg
 
 go 1.21
 
 require (
 	github.com/awslabs/amazon-ecr-credential-helper/ecr-login v0.0.0-20220517224237-e6f29200ae04
-	github.com/cheggaaa/pb/v3 v3.1.4
+	github.com/cheggaaa/pb/v3 v3.1.5
 	github.com/chrismellard/docker-credential-acr-env v0.0.0-20220327082430-c57b701bfc08
 	github.com/cppforlife/cobrautil v0.0.0-20221021151949-d60711905d65
 	github.com/cppforlife/go-cli-ui v0.0.0-20220425131040-94f26b16bc14
 	github.com/fatih/color v1.15.0 // indirect
-	github.com/google/go-containerregistry v0.16.1
-	github.com/mattn/go-isatty v0.0.19
-	github.com/maxbrunsfeld/counterfeiter/v6 v6.7.0
-	github.com/spf13/cobra v1.7.0
-	github.com/stretchr/testify v1.8.4
-	golang.org/x/sync v0.3.0
-	golang.org/x/sys v0.13.0
-	sigs.k8s.io/yaml v1.3.0
+	github.com/google/go-containerregistry v0.19.0
+	github.com/mattn/go-isatty v0.0.20
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.8.1
+	github.com/spf13/cobra v1.8.0
+	github.com/stretchr/testify v1.9.0
+	golang.org/x/sync v0.6.0
+	golang.org/x/sys v0.18.0
+	sigs.k8s.io/yaml v1.4.0
 )
 
 require (
@@ -49,7 +49,7 @@ require (
 	github.com/dimchansky/utfbom v1.1.0 // indirect
 	github.com/docker/cli v24.0.0+incompatible // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
-	github.com/docker/docker v24.0.0+incompatible // indirect
+	github.com/docker/docker v24.0.7+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.7.0 // indirect
 	github.com/form3tech-oss/jwt-go v3.2.3+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
@@ -57,7 +57,7 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/klauspost/compress v1.16.5 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-runewidth v0.0.14 // indirect
+	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc3 // indirect
@@ -68,14 +68,15 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/vbatts/tar-split v0.11.3 // indirect
 	github.com/vito/go-interact v1.0.1 // indirect
-	golang.org/x/crypto v0.14.0 // indirect
-	golang.org/x/mod v0.12.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/crypto v0.18.0 // indirect
+	golang.org/x/mod v0.14.0 // indirect
+	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/oauth2 v0.8.0 // indirect
-	golang.org/x/term v0.13.0 // indirect
-	golang.org/x/tools v0.12.0 // indirect
+	golang.org/x/term v0.16.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/tools v0.17.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.30.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

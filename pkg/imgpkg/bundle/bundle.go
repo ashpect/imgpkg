@@ -9,14 +9,14 @@ import (
 	"strings"
 	"sync"
 
+	ctlimg "carvel.dev/imgpkg/pkg/imgpkg/image"
+	"carvel.dev/imgpkg/pkg/imgpkg/imageset"
+	"carvel.dev/imgpkg/pkg/imgpkg/internal/util"
+	"carvel.dev/imgpkg/pkg/imgpkg/lockconfig"
+	plainimg "carvel.dev/imgpkg/pkg/imgpkg/plainimage"
 	regname "github.com/google/go-containerregistry/pkg/name"
 	regv1 "github.com/google/go-containerregistry/pkg/v1"
 	regremote "github.com/google/go-containerregistry/pkg/v1/remote"
-	ctlimg "github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/image"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/imageset"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/internal/util"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/lockconfig"
-	plainimg "github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/plainimage"
 )
 
 const (
@@ -126,18 +126,23 @@ func (o *Bundle) NoteCopy(processedImages *imageset.ProcessedImages, reg ImagesM
 		APIVersion: LocationAPIVersion,
 		Kind:       ImageLocationsKind,
 	}
+	foundImages := map[string]bool{}
 	var bundleProcessedImage imageset.ProcessedImage
 	for _, image := range processedImages.All() {
-		ref, found := o.findCachedImageRef(image.UnprocessedImageRef.DigestRef)
-		if found {
-			locationsCfg.Images = append(locationsCfg.Images, ImageLocation{
-				Image:    ref.Image,
-				IsBundle: *ref.IsBundle,
-			})
-		}
 		imgDigest, err := regname.NewDigest(image.UnprocessedImageRef.DigestRef)
 		if err != nil {
 			panic(fmt.Sprintf("Internal inconsistency: Image '%s' is not a valid Digest Reference", err))
+		}
+
+		ref, found := o.findCachedImageRef(image.UnprocessedImageRef.DigestRef)
+		if found {
+			if _, ok := foundImages[imgDigest.DigestStr()]; !ok {
+				locationsCfg.Images = append(locationsCfg.Images, ImageLocation{
+					Image:    ref.Image,
+					IsBundle: *ref.IsBundle,
+				})
+				foundImages[imgDigest.DigestStr()] = true
+			}
 		}
 
 		if imgDigest.DigestStr() == o.Digest() {

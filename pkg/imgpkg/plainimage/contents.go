@@ -9,13 +9,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	ctlimg "carvel.dev/imgpkg/pkg/imgpkg/image"
+	"carvel.dev/imgpkg/pkg/imgpkg/internal/util"
 	regname "github.com/google/go-containerregistry/pkg/name"
 	regv1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/empty"
 	"github.com/google/go-containerregistry/pkg/v1/layout"
 	regremote "github.com/google/go-containerregistry/pkg/v1/remote"
-	ctlimg "github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/image"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/internal/util"
 )
 
 // Contents of the OCI Image

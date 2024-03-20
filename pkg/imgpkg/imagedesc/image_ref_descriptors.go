@@ -11,12 +11,12 @@ import (
 	"strings"
 	"sync"
 
+	"carvel.dev/imgpkg/pkg/imgpkg/internal/util"
 	regname "github.com/google/go-containerregistry/pkg/name"
 	regv1 "github.com/google/go-containerregistry/pkg/v1"
 	regremote "github.com/google/go-containerregistry/pkg/v1/remote"
 	regtran "github.com/google/go-containerregistry/pkg/v1/remote/transport"
 	regtypes "github.com/google/go-containerregistry/pkg/v1/types"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/internal/util"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -222,10 +222,16 @@ func (ids *ImageRefDescriptors) buildImage(ref Metadata) (ImageDescriptor, error
 		if err != nil {
 			return td, err
 		}
-		layerDiffID, err := layer.DiffID()
-		if err != nil {
-			return td, err
+
+		layerDiffID := ""
+		if layerMediaType.IsLayer() {
+			lDiffID, err := layer.DiffID()
+			if err != nil {
+				return td, err
+			}
+			layerDiffID = lDiffID.String()
 		}
+
 		layerSize, err := layer.Size()
 		if err != nil {
 			return td, err
@@ -234,7 +240,7 @@ func (ids *ImageRefDescriptors) buildImage(ref Metadata) (ImageDescriptor, error
 		layerTD := ImageLayerDescriptor{
 			MediaType: string(layerMediaType),
 			Digest:    layerDigest.String(),
-			DiffID:    layerDiffID.String(),
+			DiffID:    layerDiffID,
 			Size:      layerSize,
 		}
 

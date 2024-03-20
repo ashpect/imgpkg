@@ -13,6 +13,7 @@ import (
 	"strings"
 	"testing"
 
+	ctlimg "carvel.dev/imgpkg/pkg/imgpkg/image"
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/empty"
@@ -21,7 +22,6 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/types"
 	"github.com/stretchr/testify/require"
-	ctlimg "github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/image"
 )
 
 type ImageFactory struct {
@@ -40,6 +40,25 @@ func (i *ImageFactory) ImageDigest(imgRef string) string {
 	digest, err := img.Digest()
 	require.NoError(i.T, err)
 	return digest.String()
+}
+
+// GetImageLayersDigest will return image's layers digest
+func (i *ImageFactory) GetImageLayersDigest(image string) []string {
+	parsedImgRef, err := name.ParseReference(image, name.WeakValidation)
+	require.NoError(i.T, err)
+
+	v1Img, err := remote.Image(parsedImgRef, remote.WithAuthFromKeychain(authn.DefaultKeychain))
+	require.NoError(i.T, err)
+
+	imgLayers, err := v1Img.Layers()
+	require.NoError(i.T, err)
+	digestSha := []string{}
+	for _, imgLayer := range imgLayers {
+		digHash, err := imgLayer.Digest()
+		require.NoError(i.T, err)
+		digestSha = append(digestSha, digHash.String())
+	}
+	return digestSha
 }
 
 func (i *ImageFactory) PushImageWithANonDistributableLayer(imgRef string, mediaType types.MediaType) string {

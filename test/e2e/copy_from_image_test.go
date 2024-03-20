@@ -13,15 +13,14 @@ import (
 	"testing"
 	"time"
 
+	"carvel.dev/imgpkg/pkg/imgpkg/lockconfig"
+	"carvel.dev/imgpkg/test/helpers"
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/vmware-tanzu/carvel-imgpkg/test/helpers"
-
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/lockconfig"
 )
 
 func TestCopyImageToRepoDestinationAndOutputImageLockFileAndPreserveImageTag(t *testing.T) {
@@ -363,6 +362,26 @@ func TestCopyRepoToTarAndThenCopyFromTarToRepo(t *testing.T) {
 			require.NoError(t, env.Assert.ValidateImagesPresenceInRegistry(refs))
 			env.Assert.ValidateCosignSignature([]string{fmt.Sprintf("%s:%s", env.RelocationRepo, tag)})
 		})
+	})
+}
+
+func TestCopyImageWithLayersThatDoNotFollowSpec(t *testing.T) {
+	const helmChartSHA = "sha256:f247f3b9467b611bc970d14d890b0f65b1128786f1bbb4712bc02fa59f58f9f8"
+	env := helpers.BuildEnv(t)
+	imgpkg := helpers.Imgpkg{T: t, L: helpers.Logger{}, ImgpkgPath: env.ImgpkgPath}
+	defer env.Cleanup()
+
+	logger := helpers.Logger{}
+	tag := time.Now().UnixNano()
+
+	logger.Section(fmt.Sprintf("Copy tar of helm chart to the registry '%d'", tag), func() {
+		imgpkg.Run([]string{"copy", "--tar", "./assets/helm-chart.tar",
+			"--to-repo", env.RelocationRepo})
+	})
+
+	logger.Section("Copy Image using the Tag", func() {
+		imgpkg.Run([]string{"copy", "--image", fmt.Sprintf("%s@%v", env.RelocationRepo, helmChartSHA),
+			"--to-repo", env.RelocationRepo + "-1"})
 	})
 }
 
