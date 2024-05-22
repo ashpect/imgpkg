@@ -9,6 +9,7 @@ import (
 	"os"
 
 	ctlbundle "carvel.dev/imgpkg/pkg/imgpkg/bundle"
+	"carvel.dev/imgpkg/pkg/imgpkg/image"
 	"carvel.dev/imgpkg/pkg/imgpkg/imageset"
 	ctlimgset "carvel.dev/imgpkg/pkg/imgpkg/imageset"
 	"carvel.dev/imgpkg/pkg/imgpkg/imagetar"
@@ -17,15 +18,6 @@ import (
 	"carvel.dev/imgpkg/pkg/imgpkg/plainimage"
 	"carvel.dev/imgpkg/pkg/imgpkg/registry"
 	regname "github.com/google/go-containerregistry/pkg/name"
-	ctlbundle "github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/bundle"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/image"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/imageset"
-	ctlimgset "github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/imageset"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/imagetar"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/internal/util"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/lockconfig"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/plainimage"
-	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/registry"
 )
 
 type SignatureRetriever interface {
